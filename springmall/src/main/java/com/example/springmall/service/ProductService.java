@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.springmall.constant.ProductCategory;
 import com.example.springmall.dao.ProductDao;
 import com.example.springmall.dto.ProductRequest;
 import com.example.springmall.model.ProductVO;
@@ -15,8 +16,8 @@ public class ProductService {
 	@Autowired
 	private ProductDao productDao;
 	
-	public List<ProductVO> getProducts(){
-		return productDao.getProducts();
+	public List<ProductVO> getProducts(ProductCategory category, String search){
+		return productDao.getProducts(category, search);
 	}
 	
 	public ProductVO getProductById(Integer productId) {

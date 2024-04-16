@@ -13,6 +13,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import com.example.springmall.constant.ProductCategory;
 import com.example.springmall.dao.ProductDao;
 import com.example.springmall.dto.ProductRequest;
 import com.example.springmall.model.ProductVO;
@@ -25,12 +26,23 @@ public class ProductDaoImpl implements ProductDao {
 	private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 	
 	@Override
-	public List<ProductVO> getProducts() {
+	public List<ProductVO> getProducts(ProductCategory category, String search) {
 		String sql = "SELECT product_id, product_name, category, "
 				+ "image_url, price, stock, description, "
-				+ "created_date, last_modified_date" + " FROM product ";
+				+ "created_date, last_modified_date" 
+				+ " FROM product WHERE 1=1";
 		
 		Map<String, Object> map = new HashMap<>();
+		
+		if(category != null) {
+			sql = sql + " AND category=:category";
+			map.put("category", category.toString());
+		}
+		
+		if(search != null) {
+			sql = sql + " AND product_name=:search";
+			map.put("search", "%" + search +"%");
+		}
 		
 		return namedParameterJdbcTemplate.query(sql, map, new ProductRowMapper());
 	}

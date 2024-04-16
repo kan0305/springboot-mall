@@ -15,10 +15,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.springmall.common.ResponseVO;
 import com.example.springmall.common.ResponseVO.CodeType;
+import com.example.springmall.constant.ProductCategory;
 import com.example.springmall.dto.ProductRequest;
 import com.example.springmall.model.ProductVO;
 import com.example.springmall.service.ProductService;
@@ -34,11 +36,13 @@ public class ProductController {
 	private ProductService productService;
 
 	@GetMapping()
-	public ResponseEntity<ResponseVO> getProducts() {
+	public ResponseEntity<ResponseVO> getProducts(
+			@RequestParam(required = false) ProductCategory category,
+			@RequestParam(required = false) String search) {
 		ResponseVO response = new ResponseVO();
 		
 		try {
-			List<ProductVO> list = productService.getProducts();
+			List<ProductVO> list = productService.getProducts(category, search);
 			
 			response.setRtnCode(CodeType.SUCCESS.getCode());
 			response.setRtnMsg(CodeType.SUCCESS.getMessage());

@@ -20,4 +20,8 @@ public class ProductService {
 	public Integer createProduct(ProductRequest product) {
 		return productDao.createProduct(product);
 	}
+	
+	public void updateProduct(Integer productId, ProductRequest product) {
+		productDao.updateProduct(productId, product);
+	}
 }

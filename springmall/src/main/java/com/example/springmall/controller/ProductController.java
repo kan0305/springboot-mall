@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -54,16 +55,16 @@ public class ProductController {
 	}
 
 	@PostMapping()
-	public ResponseEntity<ResponseVO> createProduct(@RequestBody @Valid ProductRequest product) {
+	public ResponseEntity<ResponseVO> createProduct(@RequestBody @Valid ProductRequest productRequest) {
 		ResponseVO response = new ResponseVO();
 		ProductVO newProduct = null;
 		try {
-			Integer productId = productService.createProduct(product);
+			Integer productId = productService.createProduct(productRequest);
 			if (productId != -1) {
-				logger.info("商品[{}]建立成功", product.getProductName());
+				logger.info("商品[{}]建立成功", productRequest.getProductName());
 				newProduct = productService.getProductById(productId);
 			} else {
-				logger.info("商品[{}]建立失敗", product.getProductName());
+				logger.info("商品[{}]建立失敗", productRequest.getProductName());
 			}
 		} catch (Exception e) {
 			logger.error("ProductController [createProduct] Error: {}", ExceptionUtils.getStackTrace(e));
@@ -79,5 +80,42 @@ public class ProductController {
 		}
 		
 		return ResponseEntity.status(HttpStatus.OK).body(response);
+	}
+	
+	@PutMapping("/{productId}")
+	public ResponseEntity<ResponseVO> updateProduct(
+			@PathVariable Integer productId, 
+			@RequestBody @Valid ProductRequest productRequest){
+		ResponseVO response = new ResponseVO();
+		ProductVO newProduct = null;
+		try {
+			ProductVO product = productService.getProductById(productId);
+			
+			if(product == null) {
+				logger.info("查無商品, 查詢productId= {}", productId);
+				response.setRtnCode(CodeType.PRODUCT_NOT_FOUND.getCode());
+				response.setRtnMsg(CodeType.PRODUCT_NOT_FOUND.getMessage());
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+			}
+			
+			productService.updateProduct(productId, productRequest);
+			
+			newProduct = productService.getProductById(productId);
+		} catch (Exception e) {
+			logger.error("ProductController [updateProduct] Error: {}", ExceptionUtils.getStackTrace(e));
+		}	
+
+		if (newProduct != null) {
+			response.setRtnCode(CodeType.SUCCESS.getCode());
+			response.setRtnMsg(CodeType.SUCCESS.getMessage());
+			response.getRtnObj().put("product", newProduct);
+		} else {
+			response.setRtnCode(CodeType.FAIL.getCode());
+			response.setRtnMsg(CodeType.FAIL.getMessage());
+		}
+		
+		return ResponseEntity.status(HttpStatus.OK).body(response);
+		
+		
 	}
 }

@@ -7,6 +7,7 @@ public class ResponseVO {
 	public enum CodeType {
 		SUCCESS("S001", "執行成功"), 
 		FAIL("E001", "執行失敗"),
+		PRODUCT_NOT_FOUND("E002", "查無商品"),
 		;
 
 		private String code;

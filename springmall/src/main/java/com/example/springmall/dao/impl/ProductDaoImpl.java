@@ -67,4 +67,26 @@ public class ProductDaoImpl implements ProductDao {
 		return Optional.ofNullable(keyHolder.getKey()).map(Number::intValue).orElse(-1);
 	}
 
+	@Override
+	public void updateProduct(Integer productId, ProductRequest product) {
+		String sql = "UPDATE product "
+				+ "SET product_name=:productName, category=:category, "
+				+ "image_url=:imageUrl, price=:price, stock=:stock, "
+				+ "description=:description, last_modified_date=:lastModifiedDate "
+				+ "WHERE product_id=:productId";
+		
+		Map<String, Object> map = new HashMap<>();
+		map.put("productId", productId);
+		
+		map.put("productName", product.getProductName());
+		map.put("category", product.getCategory().toString());
+		map.put("imageUrl", product.getImageUrl());
+		map.put("price", product.getPrice());
+		map.put("stock", product.getStock());
+		map.put("description", product.getDescription());
+		map.put("lastModifiedDate", new Date());		
+		
+		namedParameterJdbcTemplate.update(sql, map);
+	}
+
 }

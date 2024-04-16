@@ -1,11 +1,14 @@
 package com.example.springmall.controller;
 
+import java.util.List;
+
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,30 +26,53 @@ import com.example.springmall.service.ProductService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/product")
+@RequestMapping("/products")
 public class ProductController {
 	Logger logger = LoggerFactory.getLogger(ProductController.class);
 
 	@Autowired
 	private ProductService productService;
 
+	@GetMapping()
+	public ResponseEntity<ResponseVO> getProducts() {
+		ResponseVO response = new ResponseVO();
+		
+		try {
+			List<ProductVO> list = productService.getProducts();
+			
+			response.setRtnCode(CodeType.SUCCESS.getCode());
+			response.setRtnMsg(CodeType.SUCCESS.getMessage());
+			response.getRtnObj().put("list", list);
+			
+		} catch (Exception e) {
+			logger.error("ProductController [getProducts] Error: {}", ExceptionUtils.getStackTrace(e));
+			response.setRtnCode(CodeType.FAIL.getCode());
+			response.setRtnMsg(CodeType.FAIL.getMessage());
+		}
+
+		return ResponseEntity.status(HttpStatus.OK).body(response);
+	}
+
 	@GetMapping("/{productId}")
 	public ResponseEntity<ResponseVO> getProductById(@PathVariable Integer productId) {
 		ResponseVO response = new ResponseVO();
-		ProductVO product = null;
 
 		try {
-			product = productService.getProductById(productId);
-		} catch (Exception e) {
-			logger.error("ProductController [getProductById] Error: {}", ExceptionUtils.getStackTrace(e));
-		}
+			ProductVO product = productService.getProductById(productId);
 
-		if (product != null) {
+			if (product == null) {
+				logger.info("查無商品, 查詢productId = {}", productId);
+				response.setRtnCode(CodeType.PRODUCT_NOT_FOUND.getCode());
+				response.setRtnMsg(CodeType.PRODUCT_NOT_FOUND.getMessage());
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+			}
+
 			response.setRtnCode(CodeType.SUCCESS.getCode());
 			response.setRtnMsg(CodeType.SUCCESS.getMessage());
 			response.getRtnObj().put("product", product);
-		} else {
-			logger.info("查無商品, 查詢productId = {}", productId);
+
+		} catch (Exception e) {
+			logger.error("ProductController [getProductById] Error: {}", ExceptionUtils.getStackTrace(e));
 			response.setRtnCode(CodeType.FAIL.getCode());
 			response.setRtnMsg(CodeType.FAIL.getMessage());
 		}
@@ -57,65 +83,73 @@ public class ProductController {
 	@PostMapping()
 	public ResponseEntity<ResponseVO> createProduct(@RequestBody @Valid ProductRequest productRequest) {
 		ResponseVO response = new ResponseVO();
-		ProductVO newProduct = null;
+
 		try {
 			Integer productId = productService.createProduct(productRequest);
-			if (productId != -1) {
-				logger.info("商品[{}]建立成功", productRequest.getProductName());
-				newProduct = productService.getProductById(productId);
-			} else {
-				logger.info("商品[{}]建立失敗", productRequest.getProductName());
-			}
-		} catch (Exception e) {
-			logger.error("ProductController [createProduct] Error: {}", ExceptionUtils.getStackTrace(e));
-		}	
 
-		if (newProduct != null) {
+			if (productId == -1) {
+				logger.info("商品[{}]建立失敗", productRequest.getProductName());
+				response.setRtnCode(CodeType.PRODUCT_CREATE_FAIL.getCode());
+				response.setRtnMsg(CodeType.PRODUCT_CREATE_FAIL.getMessage());
+				return ResponseEntity.status(HttpStatus.OK).body(response);
+			}
+
+			logger.info("商品[{}]建立成功", productRequest.getProductName());
+			ProductVO newProduct = productService.getProductById(productId);
+
 			response.setRtnCode(CodeType.SUCCESS.getCode());
 			response.setRtnMsg(CodeType.SUCCESS.getMessage());
 			response.getRtnObj().put("product", newProduct);
-		} else {
+
+		} catch (Exception e) {
+			logger.error("ProductController [createProduct] Error: {}", ExceptionUtils.getStackTrace(e));
 			response.setRtnCode(CodeType.FAIL.getCode());
 			response.setRtnMsg(CodeType.FAIL.getMessage());
 		}
-		
+
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
-	
+
 	@PutMapping("/{productId}")
-	public ResponseEntity<ResponseVO> updateProduct(
-			@PathVariable Integer productId, 
-			@RequestBody @Valid ProductRequest productRequest){
+	public ResponseEntity<ResponseVO> updateProduct(@PathVariable Integer productId,
+			@RequestBody @Valid ProductRequest productRequest) {
 		ResponseVO response = new ResponseVO();
-		ProductVO newProduct = null;
+
 		try {
 			ProductVO product = productService.getProductById(productId);
-			
-			if(product == null) {
+
+			if (product == null) {
 				logger.info("查無商品, 查詢productId= {}", productId);
 				response.setRtnCode(CodeType.PRODUCT_NOT_FOUND.getCode());
 				response.setRtnMsg(CodeType.PRODUCT_NOT_FOUND.getMessage());
 				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
 			}
-			
-			productService.updateProduct(productId, productRequest);
-			
-			newProduct = productService.getProductById(productId);
-		} catch (Exception e) {
-			logger.error("ProductController [updateProduct] Error: {}", ExceptionUtils.getStackTrace(e));
-		}	
 
-		if (newProduct != null) {
+			productService.updateProduct(productId, productRequest);
+
+			ProductVO newProduct = productService.getProductById(productId);
+
 			response.setRtnCode(CodeType.SUCCESS.getCode());
 			response.setRtnMsg(CodeType.SUCCESS.getMessage());
 			response.getRtnObj().put("product", newProduct);
-		} else {
+
+		} catch (Exception e) {
+			logger.error("ProductController [updateProduct] Error: {}", ExceptionUtils.getStackTrace(e));
 			response.setRtnCode(CodeType.FAIL.getCode());
 			response.setRtnMsg(CodeType.FAIL.getMessage());
 		}
-		
+
 		return ResponseEntity.status(HttpStatus.OK).body(response);
-		
-		
+	}
+
+	@DeleteMapping("/{productId}")
+	public ResponseEntity<Void> deleteProduct(@PathVariable Integer productId) {
+		try {
+			productService.deleteProduct(productId);
+		} catch (Exception e) {
+			logger.error("ProductController [deleteProduct] Error: {}", ExceptionUtils.getStackTrace(e));
+		}
+
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 	}
 }

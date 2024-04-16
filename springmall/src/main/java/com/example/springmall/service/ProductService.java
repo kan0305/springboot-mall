@@ -1,5 +1,7 @@
 package com.example.springmall.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +15,10 @@ public class ProductService {
 	@Autowired
 	private ProductDao productDao;
 	
+	public List<ProductVO> getProducts(){
+		return productDao.getProducts();
+	}
+	
 	public ProductVO getProductById(Integer productId) {
 		return productDao.getProductById(productId);
 	}
@@ -23,5 +29,9 @@ public class ProductService {
 	
 	public void updateProduct(Integer productId, ProductRequest product) {
 		productDao.updateProduct(productId, product);
+	}
+	
+	public void deleteProduct(Integer productId) {
+		productDao.deleteProduct(productId);
 	}
 }

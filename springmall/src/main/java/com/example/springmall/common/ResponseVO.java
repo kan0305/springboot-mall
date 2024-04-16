@@ -8,6 +8,7 @@ public class ResponseVO {
 		SUCCESS("S001", "執行成功"), 
 		FAIL("E001", "執行失敗"),
 		PRODUCT_NOT_FOUND("E002", "查無商品"),
+		PRODUCT_CREATE_FAIL("E003", "商品建立失敗"),
 		;
 
 		private String code;

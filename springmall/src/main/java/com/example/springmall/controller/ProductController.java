@@ -146,7 +146,7 @@ public class ProductController {
 			response.setRtnMsg(CodeType.FAIL.getMessage());
 		}
 
-		return ResponseEntity.status(HttpStatus.OK).body(response);
+		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
 
 	@PutMapping("/{productId}")

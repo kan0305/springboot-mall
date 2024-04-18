@@ -26,23 +26,26 @@ public class ProductDaoImpl implements ProductDao {
 	private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
 	@Override
+	public Integer countProduct(ProductQueryParams params) {
+		String sql = "SELECT count(*) FROM product WHERE 1=1";
+
+		Map<String, Object> map = new HashMap<>();
+		
+		// 拼接查詢條件
+		sql = addFilteringSql(sql, map, params);
+
+		return namedParameterJdbcTemplate.queryForObject(sql, map, Integer.class);
+	}
+	
+	@Override
 	public List<ProductVO> getProducts(ProductQueryParams params) {
 		String sql = "SELECT product_id, product_name, category, " + "image_url, price, stock, description, "
 				+ "created_date, last_modified_date" + " FROM product WHERE 1=1";
 
 		Map<String, Object> map = new HashMap<>();
 
-		// 查詢條件(category)
-		if (params.getCategory() != null) {
-			sql = sql + " AND category=:category";
-			map.put("category", params.getCategory().toString());
-		}
-
-		// 查詢條件(search)
-		if (params.getSearch() != null) {
-			sql = sql + " AND product_name LIKE :search";
-			map.put("search", "%" + params.getSearch() + "%");
-		}
+		// 拼接查詢條件
+		sql = addFilteringSql(sql, map, params);
 
 		// 排序
 		sql = sql + " ORDER BY " + params.getOrderBy() + " " + params.getSort();
@@ -126,14 +129,9 @@ public class ProductDaoImpl implements ProductDao {
 		map.put("productId", productId);
 
 		namedParameterJdbcTemplate.update(sql, map);
-	}
-
-	@Override
-	public Integer countProduct(ProductQueryParams params) {
-		String sql = "SELECT count(*) FROM product WHERE 1=1";
-
-		Map<String, Object> map = new HashMap<>();
-
+	}	
+	
+	private String addFilteringSql(String sql, Map<String, Object> map, ProductQueryParams params) {
 		// 查詢條件(category)
 		if (params.getCategory() != null) {
 			sql = sql + " AND category=:category";
@@ -145,7 +143,7 @@ public class ProductDaoImpl implements ProductDao {
 			sql = sql + " AND product_name LIKE :search";
 			map.put("search", "%" + params.getSearch() + "%");
 		}
-
-		return namedParameterJdbcTemplate.queryForObject(sql, map, Integer.class);
+		
+		return sql;
 	}
 }

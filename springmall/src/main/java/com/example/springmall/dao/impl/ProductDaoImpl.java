@@ -34,17 +34,25 @@ public class ProductDaoImpl implements ProductDao {
 		
 		Map<String, Object> map = new HashMap<>();
 		
+		// 查詢條件(category)
 		if(params.getCategory() != null) {
 			sql = sql + " AND category=:category";
 			map.put("category", params.getCategory().toString());
 		}
 		
+		// 查詢條件(search)
 		if(params.getSearch() != null) {
 			sql = sql + " AND product_name LIKE :search";
 			map.put("search", "%" + params.getSearch() + "%");
 		}
 		
-		sql = sql + " ORDER BY " + params.getOrderBy() + " " + params.getSort();
+		// 排序
+		sql = sql + " ORDER BY " + params.getOrderBy() + " " + params.getSort() ;
+		
+		// 分頁
+		sql = sql + " LIMIT :limit OFFSET :offset";
+		map.put("limit", params.getLimit());
+		map.put("offset", params.getOffset());
 		
 		return namedParameterJdbcTemplate.query(sql, map, new ProductRowMapper());
 	}

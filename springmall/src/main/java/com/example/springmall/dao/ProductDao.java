@@ -11,5 +11,6 @@ public interface ProductDao {
 	ProductVO getProductById(Integer productId);
 	Integer createProduct(ProductRequest product);
 	void updateProduct(Integer productId, ProductRequest product);
-	void deleteProduct(Integer productId);	
+	void deleteProduct(Integer productId);
+	Integer countProduct(ProductQueryParams params);
 }

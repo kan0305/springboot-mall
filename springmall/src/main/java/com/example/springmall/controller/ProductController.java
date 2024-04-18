@@ -26,6 +26,7 @@ import com.example.springmall.dto.ProductQueryParams;
 import com.example.springmall.dto.ProductRequest;
 import com.example.springmall.model.ProductVO;
 import com.example.springmall.service.ProductService;
+import com.example.springmall.util.Page;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -53,22 +54,34 @@ public class ProductController {
 			// 分頁 Pagination
 			@RequestParam(defaultValue = "5") @Max(1000) @Min(0) Integer limit,
 			@RequestParam(defaultValue = "0") @Min(0) Integer offset) {
-		ResponseVO response = new ResponseVO();		
+		ResponseVO response = new ResponseVO();
 		
 		try {
+			// 整理Request參數
 			ProductQueryParams params = new ProductQueryParams();
 			params.setCategory(category);
 			params.setSearch(search);
 			params.setOrderBy(orderBy);
 			params.setSort(sort);
 			params.setLimit(limit);
-			params.setOffset(offset);
+			params.setOffset(offset);		
 			
+			// 取得 product list
 			List<ProductVO> list = productService.getProducts(params);
+			
+			// 取得 product 總數
+			Integer total = productService.countProduct(params);
+			
+			// Response查詢結果與分頁資訊
+			Page<ProductVO> pageObj = new Page<>();
+			pageObj.setLimit(limit);
+			pageObj.setOffset(offset);
+			pageObj.setTotal(total);
+			pageObj.setResult(list);
 			
 			response.setRtnCode(CodeType.SUCCESS.getCode());
 			response.setRtnMsg(CodeType.SUCCESS.getMessage());
-			response.getRtnObj().put("list", list);
+			response.getRtnObj().put("result", pageObj);
 			
 		} catch (Exception e) {
 			logger.error("ProductController [getProducts] Error: {}", ExceptionUtils.getStackTrace(e));

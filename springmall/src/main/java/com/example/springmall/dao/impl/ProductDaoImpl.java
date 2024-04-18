@@ -24,36 +24,34 @@ public class ProductDaoImpl implements ProductDao {
 
 	@Autowired
 	private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
-	
+
 	@Override
 	public List<ProductVO> getProducts(ProductQueryParams params) {
-		String sql = "SELECT product_id, product_name, category, "
-				+ "image_url, price, stock, description, "
-				+ "created_date, last_modified_date" 
-				+ " FROM product WHERE 1=1";
-		
+		String sql = "SELECT product_id, product_name, category, " + "image_url, price, stock, description, "
+				+ "created_date, last_modified_date" + " FROM product WHERE 1=1";
+
 		Map<String, Object> map = new HashMap<>();
-		
+
 		// 查詢條件(category)
-		if(params.getCategory() != null) {
+		if (params.getCategory() != null) {
 			sql = sql + " AND category=:category";
 			map.put("category", params.getCategory().toString());
 		}
-		
+
 		// 查詢條件(search)
-		if(params.getSearch() != null) {
+		if (params.getSearch() != null) {
 			sql = sql + " AND product_name LIKE :search";
 			map.put("search", "%" + params.getSearch() + "%");
 		}
-		
+
 		// 排序
-		sql = sql + " ORDER BY " + params.getOrderBy() + " " + params.getSort() ;
-		
+		sql = sql + " ORDER BY " + params.getOrderBy() + " " + params.getSort();
+
 		// 分頁
 		sql = sql + " LIMIT :limit OFFSET :offset";
 		map.put("limit", params.getLimit());
 		map.put("offset", params.getOffset());
-		
+
 		return namedParameterJdbcTemplate.query(sql, map, new ProductRowMapper());
 	}
 
@@ -80,7 +78,7 @@ public class ProductDaoImpl implements ProductDao {
 				+ "description, created_date, last_modified_date) "
 				+ "VALUES (:productName, :category, :imageUrl, :price, :stock, :description, "
 				+ ":createdDate, :lastModifiedDate)";
-		
+
 		Map<String, Object> map = new HashMap<>();
 		map.put("productName", product.getProductName());
 		map.put("category", product.getCategory().toString());
@@ -88,47 +86,66 @@ public class ProductDaoImpl implements ProductDao {
 		map.put("price", product.getPrice());
 		map.put("stock", product.getStock());
 		map.put("description", product.getDescription());
-		
+
 		Date now = new Date();
 		map.put("createdDate", now);
 		map.put("lastModifiedDate", now);
-		
+
 		KeyHolder keyHolder = new GeneratedKeyHolder();
-		
+
 		namedParameterJdbcTemplate.update(sql, new MapSqlParameterSource(map), keyHolder);
-		
+
 		return Optional.ofNullable(keyHolder.getKey()).map(Number::intValue).orElse(-1);
 	}
 
 	@Override
 	public void updateProduct(Integer productId, ProductRequest product) {
-		String sql = "UPDATE product "
-				+ "SET product_name=:productName, category=:category, "
+		String sql = "UPDATE product " + "SET product_name=:productName, category=:category, "
 				+ "image_url=:imageUrl, price=:price, stock=:stock, "
-				+ "description=:description, last_modified_date=:lastModifiedDate "
-				+ "WHERE product_id=:productId";
-		
+				+ "description=:description, last_modified_date=:lastModifiedDate " + "WHERE product_id=:productId";
+
 		Map<String, Object> map = new HashMap<>();
 		map.put("productId", productId);
-		
+
 		map.put("productName", product.getProductName());
 		map.put("category", product.getCategory().toString());
 		map.put("imageUrl", product.getImageUrl());
 		map.put("price", product.getPrice());
 		map.put("stock", product.getStock());
 		map.put("description", product.getDescription());
-		map.put("lastModifiedDate", new Date());		
-		
+		map.put("lastModifiedDate", new Date());
+
 		namedParameterJdbcTemplate.update(sql, map);
 	}
 
 	@Override
 	public void deleteProduct(Integer productId) {
 		String sql = "DELETE FROM product WHERE product_id=:productId";
-		
+
 		Map<String, Object> map = new HashMap<>();
 		map.put("productId", productId);
-		
+
 		namedParameterJdbcTemplate.update(sql, map);
+	}
+
+	@Override
+	public Integer countProduct(ProductQueryParams params) {
+		String sql = "SELECT count(*) FROM product WHERE 1=1";
+
+		Map<String, Object> map = new HashMap<>();
+
+		// 查詢條件(category)
+		if (params.getCategory() != null) {
+			sql = sql + " AND category=:category";
+			map.put("category", params.getCategory().toString());
+		}
+
+		// 查詢條件(search)
+		if (params.getSearch() != null) {
+			sql = sql + " AND product_name LIKE :search";
+			map.put("search", "%" + params.getSearch() + "%");
+		}
+
+		return namedParameterJdbcTemplate.queryForObject(sql, map, Integer.class);
 	}
 }

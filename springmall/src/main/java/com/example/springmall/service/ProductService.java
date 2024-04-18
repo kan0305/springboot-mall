@@ -35,4 +35,8 @@ public class ProductService {
 	public void deleteProduct(Integer productId) {
 		productDao.deleteProduct(productId);
 	}
+	
+	public Integer countProduct(ProductQueryParams params) {
+		return productDao.countProduct(params);
+	}
 }

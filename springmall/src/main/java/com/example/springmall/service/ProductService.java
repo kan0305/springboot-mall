@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.springmall.constant.ProductCategory;
 import com.example.springmall.dao.ProductDao;
+import com.example.springmall.dto.ProductQueryParams;
 import com.example.springmall.dto.ProductRequest;
 import com.example.springmall.model.ProductVO;
 
@@ -16,8 +17,8 @@ public class ProductService {
 	@Autowired
 	private ProductDao productDao;
 	
-	public List<ProductVO> getProducts(ProductCategory category, String search){
-		return productDao.getProducts(category, search);
+	public List<ProductVO> getProducts(ProductQueryParams params){
+		return productDao.getProducts(params);
 	}
 	
 	public ProductVO getProductById(Integer productId) {

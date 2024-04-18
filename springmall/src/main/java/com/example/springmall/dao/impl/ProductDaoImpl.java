@@ -15,6 +15,7 @@ import org.springframework.stereotype.Repository;
 
 import com.example.springmall.constant.ProductCategory;
 import com.example.springmall.dao.ProductDao;
+import com.example.springmall.dto.ProductQueryParams;
 import com.example.springmall.dto.ProductRequest;
 import com.example.springmall.model.ProductVO;
 import com.example.springmall.rowmapper.ProductRowMapper;
@@ -26,7 +27,7 @@ public class ProductDaoImpl implements ProductDao {
 	private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 	
 	@Override
-	public List<ProductVO> getProducts(ProductCategory category, String search) {
+	public List<ProductVO> getProducts(ProductQueryParams params) {
 		String sql = "SELECT product_id, product_name, category, "
 				+ "image_url, price, stock, description, "
 				+ "created_date, last_modified_date" 
@@ -34,14 +35,14 @@ public class ProductDaoImpl implements ProductDao {
 		
 		Map<String, Object> map = new HashMap<>();
 		
-		if(category != null) {
+		if(params.getCategory() != null) {
 			sql = sql + " AND category=:category";
-			map.put("category", category.toString());
+			map.put("category", params.getCategory().toString());
 		}
 		
-		if(search != null) {
+		if(params.getSearch() != null) {
 			sql = sql + " AND product_name LIKE :search";
-			map.put("search", "%" + search + "%");
+			map.put("search", "%" + params.getSearch() + "%");
 		}
 		
 		return namedParameterJdbcTemplate.query(sql, map, new ProductRowMapper());

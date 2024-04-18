@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.springmall.common.ResponseVO;
 import com.example.springmall.common.ResponseVO.CodeType;
 import com.example.springmall.constant.ProductCategory;
+import com.example.springmall.dto.ProductQueryParams;
 import com.example.springmall.dto.ProductRequest;
 import com.example.springmall.model.ProductVO;
 import com.example.springmall.service.ProductService;
@@ -39,10 +40,14 @@ public class ProductController {
 	public ResponseEntity<ResponseVO> getProducts(
 			@RequestParam(required = false) ProductCategory category,
 			@RequestParam(required = false) String search) {
-		ResponseVO response = new ResponseVO();
+		ResponseVO response = new ResponseVO();		
 		
 		try {
-			List<ProductVO> list = productService.getProducts(category, search);
+			ProductQueryParams params = new ProductQueryParams();
+			params.setCategory(category);
+			params.setSearch(search);			
+			
+			List<ProductVO> list = productService.getProducts(params);
 			
 			response.setRtnCode(CodeType.SUCCESS.getCode());
 			response.setRtnMsg(CodeType.SUCCESS.getMessage());

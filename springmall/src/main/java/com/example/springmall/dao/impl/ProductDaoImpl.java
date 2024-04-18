@@ -40,8 +40,8 @@ public class ProductDaoImpl implements ProductDao {
 		}
 		
 		if(search != null) {
-			sql = sql + " AND product_name=:search";
-			map.put("search", "%" + search +"%");
+			sql = sql + " AND product_name LIKE :search";
+			map.put("search", "%" + search + "%");
 		}
 		
 		return namedParameterJdbcTemplate.query(sql, map, new ProductRowMapper());

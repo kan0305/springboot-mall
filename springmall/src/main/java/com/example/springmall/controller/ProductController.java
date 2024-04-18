@@ -38,14 +38,21 @@ public class ProductController {
 
 	@GetMapping()
 	public ResponseEntity<ResponseVO> getProducts(
+			// 查詢條件 Filtering
 			@RequestParam(required = false) ProductCategory category,
-			@RequestParam(required = false) String search) {
+			@RequestParam(required = false) String search,
+			
+			// 排序 Sorting
+			@RequestParam(defaultValue = "created_date") String orderBy,
+			@RequestParam(defaultValue = "desc") String sort) {
 		ResponseVO response = new ResponseVO();		
 		
 		try {
 			ProductQueryParams params = new ProductQueryParams();
 			params.setCategory(category);
-			params.setSearch(search);			
+			params.setSearch(search);
+			params.setOrderBy(orderBy);
+			params.setSort(sort);
 			
 			List<ProductVO> list = productService.getProducts(params);
 			

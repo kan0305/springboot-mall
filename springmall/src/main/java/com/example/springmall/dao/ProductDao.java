@@ -2,7 +2,6 @@ package com.example.springmall.dao;
 
 import java.util.List;
 
-import com.example.springmall.constant.ProductCategory;
 import com.example.springmall.dto.ProductQueryParams;
 import com.example.springmall.dto.ProductRequest;
 import com.example.springmall.model.ProductVO;

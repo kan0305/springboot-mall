@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.springmall.constant.ProductCategory;
 import com.example.springmall.dao.ProductDao;
 import com.example.springmall.dto.ProductQueryParams;
 import com.example.springmall.dto.ProductRequest;

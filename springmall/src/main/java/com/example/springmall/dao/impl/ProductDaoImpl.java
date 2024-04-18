@@ -13,7 +13,6 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import com.example.springmall.constant.ProductCategory;
 import com.example.springmall.dao.ProductDao;
 import com.example.springmall.dto.ProductQueryParams;
 import com.example.springmall.dto.ProductRequest;
@@ -44,6 +43,8 @@ public class ProductDaoImpl implements ProductDao {
 			sql = sql + " AND product_name LIKE :search";
 			map.put("search", "%" + params.getSearch() + "%");
 		}
+		
+		sql = sql + " ORDER BY " + params.getOrderBy() + " " + params.getSort();
 		
 		return namedParameterJdbcTemplate.query(sql, map, new ProductRowMapper());
 	}

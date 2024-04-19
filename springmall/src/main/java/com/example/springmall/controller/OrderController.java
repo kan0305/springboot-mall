@@ -1,0 +1,56 @@
+package com.example.springmall.controller;
+
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.springmall.common.ResponseVO;
+import com.example.springmall.common.ResponseVO.CodeType;
+import com.example.springmall.dto.OrderCreateRequest;
+import com.example.springmall.service.OrderService;
+
+@RestController
+@RequestMapping("/users/{userId}/orders")
+public class OrderController {
+	private Logger logger = LoggerFactory.getLogger(OrderController.class);
+
+	@Autowired
+	private OrderService orderService;
+
+	@PostMapping()
+	public ResponseEntity<ResponseVO> createOrder(@PathVariable Integer userId,
+			@RequestBody OrderCreateRequest request) {
+		ResponseVO response = new ResponseVO();
+
+		try {
+
+			Integer orderId = orderService.createOrder(userId, request);
+
+			if (orderId == -1) {
+				logger.info("訂單建立失敗, userId = {}", userId);
+				response.setRtnCode(CodeType.ORDER_CREATE_FAIL.getCode());
+				response.setRtnMsg(CodeType.ORDER_CREATE_FAIL.getMessage());
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+			}
+
+			response.setRtnCode(CodeType.SUCCESS.getCode());
+			response.setRtnMsg(CodeType.SUCCESS.getMessage());
+			response.getRtnObj().put("orderId", orderId);
+			return ResponseEntity.status(HttpStatus.CREATED).body(response);
+
+		} catch (Exception e) {
+			logger.error("OrderController [createOrder] Error: {}", ExceptionUtils.getStackTrace(e));
+			response.setRtnCode(CodeType.FAIL.getCode());
+			response.setRtnMsg(CodeType.FAIL.getMessage());
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+		}
+	}
+}

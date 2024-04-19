@@ -16,7 +16,9 @@ import com.example.springmall.common.ResponseVO;
 import com.example.springmall.common.ResponseVO.CodeType;
 import com.example.springmall.dto.OrderCreateRequest;
 import com.example.springmall.model.OrderVO;
+import com.example.springmall.model.UserVO;
 import com.example.springmall.service.OrderService;
+import com.example.springmall.service.UserService;
 
 @RestController
 @RequestMapping("/users/{userId}/orders")
@@ -25,6 +27,9 @@ public class OrderController {
 
 	@Autowired
 	private OrderService orderService;
+	
+	@Autowired
+	private UserService userService;
 
 	@PostMapping()
 	public ResponseEntity<ResponseVO> createOrder(@PathVariable Integer userId,
@@ -32,6 +37,15 @@ public class OrderController {
 		ResponseVO response = new ResponseVO();
 
 		try {
+			// 檢查用戶是否存在
+			UserVO user = userService.getUserById(userId);
+			
+			if(user == null) {
+				logger.warn("用戶{}不存在", userId);
+				response.setRtnCode(CodeType.USER_NOT_FOUND.getCode());
+				response.setRtnMsg(CodeType.USER_NOT_FOUND.getMessage());
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+			}			
 
 			// 創建訂單
 			Integer orderId = orderService.createOrder(userId, request);

@@ -16,9 +16,10 @@ public class ResponseVO {
 		USER_SAME_EMAIL_FAIL("E004", "該帳戶已註冊"),
 		USER_CREATE_FAIL("E005", "會員註冊失敗"),
 		USER_LOGIN_FAIL("E006", "登入失敗，請確認帳戶或密碼是否輸入錯誤"),
+		USER_NOT_FOUND("E007", "用戶不存在"),
 		
 		// Order
-		ORDER_CREATE_FAIL("E007", "訂單創建失敗"),
+		ORDER_CREATE_FAIL("E008", "訂單創建失敗"),
 		;
 
 		private String code;

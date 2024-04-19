@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.springmall.common.ResponseVO;
 import com.example.springmall.common.ResponseVO.CodeType;
 import com.example.springmall.dto.OrderCreateRequest;
+import com.example.springmall.model.OrderVO;
 import com.example.springmall.service.OrderService;
 
 @RestController
@@ -32,6 +33,7 @@ public class OrderController {
 
 		try {
 
+			// 創建訂單
 			Integer orderId = orderService.createOrder(userId, request);
 
 			if (orderId == -1) {
@@ -40,10 +42,13 @@ public class OrderController {
 				response.setRtnMsg(CodeType.ORDER_CREATE_FAIL.getMessage());
 				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
 			}
+			
+			// 取得訂單內容
+			OrderVO order = orderService.getOrderById(orderId);
 
 			response.setRtnCode(CodeType.SUCCESS.getCode());
 			response.setRtnMsg(CodeType.SUCCESS.getMessage());
-			response.getRtnObj().put("orderId", orderId);
+			response.getRtnObj().put("order", order);
 			return ResponseEntity.status(HttpStatus.CREATED).body(response);
 
 		} catch (Exception e) {

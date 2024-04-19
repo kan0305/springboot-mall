@@ -7,8 +7,15 @@ public class ResponseVO {
 	public enum CodeType {
 		SUCCESS("S001", "執行成功"), 
 		FAIL("E001", "執行失敗"),
+		
+		// Product
 		PRODUCT_NOT_FOUND("E002", "查無商品"),
 		PRODUCT_CREATE_FAIL("E003", "商品建立失敗"),
+		
+		// User
+		USER_SAME_EMAIL_FAIL("E004", "該帳戶已註冊"),
+		USER_CREATE_FAIL("E005", "會員註冊失敗"),
+		USER_LOGIN_FAIL("E006", "登入失敗，請確認帳戶或密碼是否輸入錯誤"),
 		;
 
 		private String code;

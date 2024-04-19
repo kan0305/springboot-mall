@@ -127,26 +127,27 @@ public class ProductController {
 			Integer productId = productService.createProduct(productRequest);
 
 			if (productId == -1) {
-				logger.info("商品[{}]建立失敗", productRequest.getProductName());
+				logger.info("商品 [{}] 建立失敗", productRequest.getProductName());
 				response.setRtnCode(CodeType.PRODUCT_CREATE_FAIL.getCode());
 				response.setRtnMsg(CodeType.PRODUCT_CREATE_FAIL.getMessage());
-				return ResponseEntity.status(HttpStatus.OK).body(response);
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
 			}
 
-			logger.info("商品[{}]建立成功", productRequest.getProductName());
+			logger.info("商品 [{}] 建立成功", productRequest.getProductName());
 			ProductVO newProduct = productService.getProductById(productId);
 
 			response.setRtnCode(CodeType.SUCCESS.getCode());
 			response.setRtnMsg(CodeType.SUCCESS.getMessage());
 			response.getRtnObj().put("product", newProduct);
+			return ResponseEntity.status(HttpStatus.CREATED).body(response);
 
 		} catch (Exception e) {
 			logger.error("ProductController [createProduct] Error: {}", ExceptionUtils.getStackTrace(e));
 			response.setRtnCode(CodeType.FAIL.getCode());
 			response.setRtnMsg(CodeType.FAIL.getMessage());
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
 		}
-
-		return ResponseEntity.status(HttpStatus.CREATED).body(response);
+		
 	}
 
 	@PutMapping("/{productId}")

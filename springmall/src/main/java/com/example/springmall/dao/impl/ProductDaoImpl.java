@@ -39,8 +39,10 @@ public class ProductDaoImpl implements ProductDao {
 	
 	@Override
 	public List<ProductVO> getProducts(ProductQueryParams params) {
-		String sql = "SELECT product_id, product_name, category, " + "image_url, price, stock, description, "
-				+ "created_date, last_modified_date" + " FROM product WHERE 1=1";
+		String sql = "SELECT product_id, product_name, category, " 
+				+ "image_url, price, stock, description, "
+				+ "created_date, last_modified_date" 
+				+ " FROM product WHERE 1=1";
 
 		Map<String, Object> map = new HashMap<>();
 
@@ -61,7 +63,9 @@ public class ProductDaoImpl implements ProductDao {
 	@Override
 	public ProductVO getProductById(Integer productId) {
 		String sql = "SELECT product_id, product_name, category, image_url, price, stock, description, "
-				+ "created_date, last_modified_date" + " FROM product " + "WHERE product_id = :productId";
+				+ "created_date, last_modified_date" 
+				+ " FROM product " 
+				+ "WHERE product_id = :productId";
 
 		Map<String, Object> map = new HashMap<>();
 		map.put("productId", productId);
@@ -105,7 +109,8 @@ public class ProductDaoImpl implements ProductDao {
 	public void updateProduct(Integer productId, ProductRequest product) {
 		String sql = "UPDATE product " + "SET product_name=:productName, category=:category, "
 				+ "image_url=:imageUrl, price=:price, stock=:stock, "
-				+ "description=:description, last_modified_date=:lastModifiedDate " + "WHERE product_id=:productId";
+				+ "description=:description, last_modified_date=:lastModifiedDate " 
+				+ "WHERE product_id=:productId";
 
 		Map<String, Object> map = new HashMap<>();
 		map.put("productId", productId);

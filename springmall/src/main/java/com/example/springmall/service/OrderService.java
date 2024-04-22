@@ -15,6 +15,7 @@ import com.example.springmall.dao.OrderDao;
 import com.example.springmall.dao.ProductDao;
 import com.example.springmall.dto.OrderCreateRequest;
 import com.example.springmall.dto.OrderItemRequest;
+import com.example.springmall.dto.OrderQueryParams;
 import com.example.springmall.model.OrderItemVO;
 import com.example.springmall.model.OrderVO;
 import com.example.springmall.model.ProductVO;
@@ -28,6 +29,22 @@ public class OrderService {
 
 	@Autowired
 	private ProductDao productDao;
+	
+	public Integer countOrder(OrderQueryParams params) {
+		return orderDao.countOrder(params);
+	}
+	
+	public List<OrderVO> getOrders(OrderQueryParams params){
+		List<OrderVO> list = orderDao.getOrders(params);
+		
+		for(OrderVO order: list) {
+			List<OrderItemVO> orderItemList = orderDao.getOrderItemsByOrderId(order.getOrderId());
+			
+			order.setOrderItemList(orderItemList);
+		}
+		
+		return list;
+ 	}
 
 	@Transactional
 	public Map<String, Object> createOrder(Integer userId, OrderCreateRequest request) {
@@ -97,6 +114,7 @@ public class OrderService {
 		return order;
 	}
 	
+	@Transactional
 	public void updateStock(List<OrderItemVO> list) {
 		for(OrderItemVO item: list) {			
 			// 扣除商品庫存

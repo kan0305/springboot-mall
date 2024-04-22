@@ -14,6 +14,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import com.example.springmall.dao.OrderDao;
+import com.example.springmall.dto.OrderQueryParams;
 import com.example.springmall.model.OrderItemVO;
 import com.example.springmall.model.OrderVO;
 import com.example.springmall.rowmapper.OrderRowMapper;
@@ -25,6 +26,37 @@ public class OrderDaoImpl implements OrderDao {
 	@Autowired
 	private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
+	@Override
+	public Integer countOrder(OrderQueryParams params) {
+		String sql = "SELECT count(*) FROM `order` WHERE 1=1";
+
+		Map<String, Object> map = new HashMap<>();
+		
+		sql = addFilteringSql(sql, map, params);
+		
+		return namedParameterJdbcTemplate.queryForObject(sql, map, Integer.class);
+	}
+
+	@Override
+	public List<OrderVO> getOrders(OrderQueryParams params) {
+		String sql = "SELECT order_id, user_id, total_amount, created_date, last_modified_date "
+				+ "FROM `order` WHERE 1=1";
+		
+		Map<String, Object> map = new HashMap<>();
+		
+		sql = addFilteringSql(sql, map, params);
+		
+		// 排序
+		sql = sql + " ORDER BY " + params.getOrderBy() + " " + params.getSort();
+
+		// 分頁
+		sql = sql + " LIMIT :limit OFFSET :offset";
+		map.put("limit", params.getLimit());
+		map.put("offset", params.getOffset());
+		
+		return namedParameterJdbcTemplate.query(sql, map, new OrderRowMapper()) ;
+	}
+	
 	@Override
 	public OrderVO getOrderById(Integer orderId) {
 		String sql = "SELECT order_id, user_id, total_amount, created_date, last_modified_date "
@@ -95,4 +127,14 @@ public class OrderDaoImpl implements OrderDao {
 		namedParameterJdbcTemplate.batchUpdate(sql, parameterSources);
 
 	}
+
+	private String addFilteringSql(String sql, Map<String, Object> map, OrderQueryParams params) {
+		if(params.getUserId() != null) {
+			sql = sql + " AND user_id = :userId";
+			map.put("userId", params.getUserId());
+		}
+		
+		return sql;
+	}
+
 }

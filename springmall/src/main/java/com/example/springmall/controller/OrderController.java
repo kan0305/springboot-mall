@@ -64,8 +64,10 @@ public class OrderController {
 			params.setLimit(limit);
 			params.setOffset(offset);
 
+			// 取得 order list
 			List<OrderVO> list = orderService.getOrders(params);
 
+			// 取得 order 總數
 			Integer total = orderService.countOrder(params);
 			
 			// Response查詢結果與分頁資訊

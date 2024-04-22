@@ -103,7 +103,7 @@ public class ProductController {
 				logger.info("查無商品, 查詢productId = {}", productId);
 				response.setRtnCode(CodeType.PRODUCT_NOT_FOUND.getCode());
 				response.setRtnMsg(CodeType.PRODUCT_NOT_FOUND.getMessage());
-				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
 			}
 
 			response.setRtnCode(CodeType.SUCCESS.getCode());
@@ -130,7 +130,7 @@ public class ProductController {
 				logger.info("商品 [{}] 建立失敗", productRequest.getProductName());
 				response.setRtnCode(CodeType.PRODUCT_CREATE_FAIL.getCode());
 				response.setRtnMsg(CodeType.PRODUCT_CREATE_FAIL.getMessage());
-				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
 			}
 
 			logger.info("商品 [{}] 建立成功", productRequest.getProductName());
@@ -162,7 +162,7 @@ public class ProductController {
 				logger.info("查無商品, 查詢productId= {}", productId);
 				response.setRtnCode(CodeType.PRODUCT_NOT_FOUND.getCode());
 				response.setRtnMsg(CodeType.PRODUCT_NOT_FOUND.getMessage());
-				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
 			}
 
 			productService.updateProduct(productId, productRequest);

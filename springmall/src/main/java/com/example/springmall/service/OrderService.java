@@ -1,7 +1,9 @@
 package com.example.springmall.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +30,8 @@ public class OrderService {
 	private ProductDao productDao;
 
 	@Transactional
-	public Integer createOrder(Integer userId, OrderCreateRequest request) {
+	public Map<String, Object> createOrder(Integer userId, OrderCreateRequest request) {
+		Map<String, Object> result = new HashMap<>();
 
 		int totalAmount = 0;
 
@@ -39,13 +42,17 @@ public class OrderService {
 
 			if (product == null) {
 				logger.warn("商品ID:{}不存在", item.getProductId());
-				return -1;
+				result.put("orderId", -1);
+				result.put("msg", "查無商品ID:" + item.getProductId());
+				return result;
 			}
 
 			if (product.getStock() < item.getQuantity()) {
 				logger.warn("商品{}庫存數量不足，無法購買。剩餘庫存{}，欲購買數量{}。", product.getProductId(), product.getStock(),
 						item.getQuantity());
-				return -1;
+				result.put("orderId", -1);
+				result.put("msg", "商品[ " + product.getProductName() + "]庫存數量不足，無法購買");
+				return result;
 			}
 
 			// 計算訂單總價
@@ -53,10 +60,11 @@ public class OrderService {
 			totalAmount += amount;
 
 			// 建立orderItem
-			OrderItemVO orderItem = new OrderItemVO();
+			OrderItemVO orderItem = new OrderItemVO();			
 			orderItem.setProductId(item.getProductId());
 			orderItem.setQuantity(item.getQuantity());
 			orderItem.setAmount(amount);
+			orderItem.setStock(product.getStock());
 
 			// 存放orderItem
 			list.add(orderItem);
@@ -64,14 +72,19 @@ public class OrderService {
 		}
 
 		// 創建訂單
-		Integer orderId = orderDao.createOrder(userId, totalAmount);
+		result.put("orderId", orderDao.createOrder(userId, totalAmount));
+		
+		Integer orderId = (int) result.get("orderId");
 
 		if (orderId != -1) {
 			// 建立訂單內容
 			orderDao.createOrderItems(orderId, list);
+			
+			// 扣除商品庫存
+			updateStock(list);
 		}
 
-		return orderId;
+		return result;
 	}
 
 	public OrderVO getOrderById(Integer orderId) {
@@ -82,6 +95,13 @@ public class OrderService {
 		order.setOrderItemList(orderItemList);
 
 		return order;
+	}
+	
+	public void updateStock(List<OrderItemVO> list) {
+		for(OrderItemVO item: list) {			
+			// 扣除商品庫存
+			productDao.updateStock(item.getProductId(), item.getStock() - item.getQuantity());
+		}
 	}
 
 }

@@ -1,5 +1,7 @@
 package com.example.springmall.controller;
 
+import java.util.Map;
+
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,37 +29,45 @@ public class OrderController {
 
 	@Autowired
 	private OrderService orderService;
-	
+
 	@Autowired
 	private UserService userService;
 
 	@PostMapping()
-	public ResponseEntity<ResponseVO> createOrder(
-			@PathVariable Integer userId,
+	public ResponseEntity<ResponseVO> createOrder(@PathVariable Integer userId,
 			@RequestBody OrderCreateRequest request) {
 		ResponseVO response = new ResponseVO();
 
 		try {
 			// 檢查用戶是否存在
 			UserVO user = userService.getUserById(userId);
-			
-			if(user == null) {
+
+			if (user == null) {
 				logger.warn("用戶{}不存在", userId);
 				response.setRtnCode(CodeType.USER_NOT_FOUND.getCode());
 				response.setRtnMsg(CodeType.USER_NOT_FOUND.getMessage());
-				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-			}			
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+			}
 
 			// 創建訂單
-			Integer orderId = orderService.createOrder(userId, request);
+			Map<String, Object> result = orderService.createOrder(userId, request);
+
+			Integer orderId = (int) result.get("orderId");
 
 			if (orderId == -1) {
 				logger.info("訂單建立失敗, userId = {}", userId);
+				
 				response.setRtnCode(CodeType.ORDER_CREATE_FAIL.getCode());
-				response.setRtnMsg(CodeType.ORDER_CREATE_FAIL.getMessage());
-				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+
+				if (result.containsKey("msg")) {
+					response.setRtnMsg(String.valueOf(result.get("msg")));
+				} else {
+					response.setRtnMsg(CodeType.ORDER_CREATE_FAIL.getMessage());
+				}
+
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
 			}
-			
+
 			// 取得訂單內容
 			OrderVO order = orderService.getOrderById(orderId);
 

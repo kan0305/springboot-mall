@@ -50,7 +50,7 @@ public class UserController {
 				logger.warn("帳戶 [{}] 建立失敗", request.getEmail());
 				response.setRtnCode(CodeType.USER_CREATE_FAIL.getCode());
 				response.setRtnMsg(CodeType.USER_CREATE_FAIL.getMessage());
-				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
 			}
 
 			response.setRtnCode(CodeType.SUCCESS.getCode());
